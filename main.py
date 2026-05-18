@@ -223,7 +223,7 @@ def generate_random_embedding(
             next_step.choices -= {
                 (edge_, path_)
                 for (edge_, path_) in next_step.choices
-                if not is_path_allowed(path_, next_step.edge_capacity)
+                if any(next_step.edge_capacity[path_edge] <= 0 for path_edge in path_edges[path_])
             }
             next_step.choices -= {
                 (edge_, path_)
@@ -356,7 +356,7 @@ def visualize_embedding(embedding: GraphEmbedding) -> None:
 def main() -> None:
     rng = random.Random(1)
 
-    primary_vertices_count = 5
+    primary_vertices_count = 6
     primary_edges_count = 10
     primary = generate_random_connected_graph(
         rng,
