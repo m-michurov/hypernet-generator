@@ -322,7 +322,7 @@ def make_embedding_labels(embedding: GraphEmbedding) -> tuple[dict[Vertex, str],
         return embedding.initial_edge_capacity[edge_] - embedding.remaining_edge_capacity[edge_]
 
     edge_labels = {
-        edge: f'{used_capacity(Edge(edge))}/{embedding.initial_edge_capacity[Edge(edge)]} used'
+        edge: f'{used_capacity(Edge(edge))}/{embedding.initial_edge_capacity[Edge(edge)]}'
         for edge in edges_to_pairs(embedding.primary.edges)
     }
     assert len(edge_labels) == len(embedding.primary.edges)
@@ -346,7 +346,7 @@ def visualize_embedding(embedding: GraphEmbedding) -> None:
 
     for i, edge in enumerate(embedding.secondary.edges):
         i, j = sorted(edge)
-        plt.title(f'({i}, {j})')
+        plt.title(f'({i}, {j})→({', '.join(map(str, embedding.edge_embedding[edge]))})')
         g, pos = draw_graph(embedding.primary, vertex_labels=vertex_labels)
         draw_path(g, pos, embedding.edge_embedding[edge], edge_color=random_color(), width=3)
         draw_edge_labels(g, pos, edge_labels)
