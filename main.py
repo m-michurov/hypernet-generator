@@ -215,31 +215,25 @@ def generate_random_embedding(
             for primary_edge in path_edges[path]:
                 next_step.edge_capacity[primary_edge] -= 1
 
-            next_step.choices -= {
-                (edge_, path_)
-                for (edge_, path_) in next_step.choices
-                if edge_ in next_step.edge_embedding
+            exclude = {
+                (other_edge, other_path)
+                for (other_edge, other_path) in next_step.choices
+                if other_edge in next_step.edge_embedding
+                   or any(next_step.edge_capacity[path_edge] <= 0 for path_edge in path_edges[other_path])
+                   or not is_edge_embedding_allowed(other_edge, other_path, next_step.vertex_embedding)
             }
-            next_step.choices -= {
-                (edge_, path_)
-                for (edge_, path_) in next_step.choices
-                if any(next_step.edge_capacity[path_edge] <= 0 for path_edge in path_edges[path_])
-            }
-            next_step.choices -= {
-                (edge_, path_)
-                for (edge_, path_) in next_step.choices
-                if not is_edge_embedding_allowed(edge_, path_, next_step.vertex_embedding)
-            }
+
+            next_step.choices -= exclude
 
             steps.append(next_step)
 
-        if set(steps[-1].edge_embedding.keys()) == secondary.edges:
+        if len(steps[-1].edge_embedding.keys()) == len(secondary.edges):
             break
 
         steps.pop()
         times_backtracked += 1
 
-    if not steps or set(steps[-1].edge_embedding.keys()) != secondary.edges:
+    if not steps or len(steps[-1].edge_embedding.keys()) != len(secondary.edges):
         return None, total_choices_explored, times_backtracked
 
     final_step = steps[-1]
@@ -357,7 +351,7 @@ def main() -> None:
     rng = random.Random(1)
 
     primary_vertices_count = 6
-    primary_edges_count = 10
+    primary_edges_count = 13
     primary = generate_random_connected_graph(
         rng,
         vertices_count=primary_vertices_count,
